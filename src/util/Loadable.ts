@@ -1,7 +1,5 @@
 export interface Loadable {
 
-    load(callback?: (arg: any) => any): Promise<any>;
-
-    loadSync(callback?: (arg: any) => any): any;
+    load(callback?: (...args: any) => any): Promise<void | void[]>;
 
 }

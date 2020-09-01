@@ -1,7 +1,5 @@
 export interface Saveable {
 
-    save(callback?: (arg: any) => any): Promise<any>;
-
-    saveSync(callback?: (arg: any) => any): any;
+    save(callback?: (...args: any) => any): Promise<void | void[]>;
 
 }
