@@ -10,17 +10,15 @@ export class StorageHolder implements Loadable, Saveable {
         this.storages = new Set();
     }
 
-    save(callback?: ((arg: any) => any) | undefined): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
-    saveSync(callback?: ((arg: any) => any) | undefined) {
-        throw new Error("Method not implemented.");
-    }
-    load(callback?: ((arg: any) => any) | undefined): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
-    loadSync(callback?: ((arg: any) => any) | undefined) {
-        throw new Error("Method not implemented.");
+    registerStorage(storage: Storage<any>) {
+        this.storages.add(storage);
     }
 
+    save(callback?: () => any): Promise<void[]> {
+        return Promise.all(Array.from(this.storages).map(storage => storage.save(callback)));
+    }
+
+    load(callback?: () => any): Promise<void[]> {
+        return Promise.all(Array.from(this.storages).map(storage => storage.load(callback)));
+    }
 }
