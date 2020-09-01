@@ -1,25 +1,15 @@
-import { Connection, createConnection, Query } from "mysql";
+import { Connection, ConnectionConfig, createConnection, Query } from "mysql";
+import { SerializedData } from "../../SerializedData";
 import { SQLWrapper } from "../SQLWrapper";
-import { DataPair } from "../../util/DataPair";
 export class MySQLDatabase extends SQLWrapper {
 
     connection: Connection;
 
-    constructor() {
+    constructor(private config: ConnectionConfig) {
         super();
     }
 
-    provideConnection(): Connection {
-        return createConnection(
-            {
-                host: "localhost",
-                port: 3306,
-                user: "simpledb",
-                password: "simpledb",
-                database: "simpledb"
-            }
-        );
-    }
+    provideConnection = () => createConnection(this.config);
 
     getConnection(): Connection {
         if (!this.connection) {
@@ -62,20 +52,12 @@ export class MySQLDatabase extends SQLWrapper {
         });
     }
 
-    getAllValuesOf(table: string, structure: string[]): Promise<Set<DataPair<string, string>>[]> {
-        const data: Set<DataPair<string, string>>[] = [];
+    getAllValuesOf(table: string, structure: string[]): Promise<SerializedData[]> {
+        const output: SerializedData[] = [];
         return new Promise(resolve => {
             const query: Query = this.getConnection().query(`SELECT * FROM ${table}`);
-
-            query.on("result", row => {
-                const set: Set<DataPair<string, string>> = new Set();
-                for (const column of structure) {
-                    set.add(new DataPair(column, row[column]));
-                }
-                data.push(set);
-            })
-
-            query.on("end", () => resolve(data));
+            query.on("result", row => output.push(new SerializedData(row as object)));
+            query.on("end", () => resolve(output));
         })
     }
 
@@ -84,6 +66,23 @@ export class MySQLDatabase extends SQLWrapper {
             const query: Query = this.getConnection().query(`DELETE FROM ${table} WHERE ${structure[0]} = '${key}'`);
             query.on("end", () => resolve());
         });
+    }
+
+    getFirstResult(key: string, value: string, table: string): Promise<SerializedData> {
+        return new Promise(resolve => {
+            const query: Query = this.getConnection().query(`SELECT * FROM ${table} WHERE ${key} = '${value}'`);
+            query.on("result", row => resolve(new SerializedData(row)))
+            query.on("end", () => resolve(undefined));
+        })
+    }
+
+    getAllResults(key: string, value: string, table: string): Promise<SerializedData[]> {
+        const output: SerializedData[] = [];
+        return new Promise(resolve => {
+            const query: Query = this.getConnection().query(`SELECT * FROM ${table} WHERE ${key} = '${value}'`);
+            query.on("result", row => output.push(new SerializedData(row)));
+            query.on("end", () => resolve(output));
+        })
     }
 
 

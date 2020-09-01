@@ -1,5 +1,6 @@
 import { DataPair } from "../util/DataPair";
 import { TableCreator } from "./TableCreator";
+import { SerializedData } from "../SerializedData";
 
 export abstract class SQLWrapper {
 
@@ -11,7 +12,11 @@ export abstract class SQLWrapper {
 
     abstract isPrimaryKeyUsed(table: string, key: string, structure: string[]): Promise<Boolean>;
 
-    abstract getAllValuesOf(table: string, structure: string[]): Promise<Set<DataPair<string, string>>[]>;
+    abstract getFirstResult(key: string, value: string, table: string): Promise<SerializedData>;
+
+    abstract getAllResults(key: string, value: string, table: string): Promise<SerializedData[]>;
+
+    abstract getAllValuesOf(table: string, structure: string[]): Promise<SerializedData[]>;
 
     abstract getColumns(table: string): Promise<string[]>;
 
