@@ -12,13 +12,15 @@
     ],
     "strictFunctionTypes": false,
     "declaration": true,
-    "outDir": "dist",
+    "outDir": "./dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true
   },
+  "include": ["src"],
   "exclude": [
+    "src/test",
     "dist",
     "node_modules"
   ]
