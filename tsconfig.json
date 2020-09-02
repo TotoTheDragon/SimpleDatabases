@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "module": "commonjs",
     "lib": [
       "ESNext",
@@ -15,7 +15,7 @@
     "outDir": "dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
-
+    "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true
   },
   "exclude": [
