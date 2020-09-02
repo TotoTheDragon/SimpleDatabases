@@ -8,7 +8,8 @@ export class TableEditor {
     addColumns: DataPair<string, string>[];
     renamedColumns: DataPair<string, string>[];
 
-    constructor() {
+    constructor(table: string) {
+        this.table = table;
         this.dropColumns = [];
         this.addColumns = [];
         this.renamedColumns = [];
@@ -37,14 +38,15 @@ export class TableEditor {
 
             for (const column of this.addColumns)
                 if (!columns.includes(column.key))
-                    database.execute(`ALTER TABLE ${this.table} ADD ${column.key} ${column.value}`);
+                    await database.execute(`ALTER TABLE ${this.table} ADD ${column.key} ${column.value}`);
 
             for (const column of this.renamedColumns)
-                database.execute(`ALTER TABLE ${this.table} RENAME COLUMN ${column.key} to ${column.value}`);
+                await database.execute(`ALTER TABLE ${this.table} RENAME COLUMN ${column.key} to ${column.value}`);
 
             for (const column of this.dropColumns)
-                database.execute(`ALTER TABLE ${this.table} DROP COLUMN ${column}`);
+                await database.execute(`ALTER TABLE ${this.table} DROP COLUMN ${column}`);
 
+            resolve();
         })
 
     }
