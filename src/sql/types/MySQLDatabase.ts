@@ -21,10 +21,11 @@ export class MySQLDatabase extends SQLWrapper {
     }
 
     getColumns(table: string): Promise<string[]> {
+        const columns = [];
         return new Promise(resolve => {
-            const query: Query = this.getConnection().query(`SELECT * FROM ${table}`);
-            query.on("result", row => resolve(Object.keys(row)));
-            query.on("end", () => resolve(undefined));
+            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.columns WHERE table_name='${table}'`);
+            query.on("result", row => columns.push(row.COLUMN_NAME));
+            query.on("end", () => resolve(columns));
         })
     }
 
@@ -38,7 +39,7 @@ export class MySQLDatabase extends SQLWrapper {
     getTables(): Promise<string[]> {
         const tables = [];
         return new Promise(resolve => {
-            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.tables WHERE table_schema=\"${this.getConnection().config.database}\"`);
+            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.tables WHERE table_schema='${this.getConnection().config.database}'`);
             query.on("result", row => tables.push(row.TABLE_NAME));
             query.on("end", () => resolve(tables));
         });
