@@ -1,6 +1,6 @@
 {
-  "name": "SimpleDatabases",
-  "version": "1.0.0",
+  "name": "simpledatabases",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,15 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totothedragon/simpledatabases.git"
+  },
   "dependencies": {
     "@types/mysql": "^2.15.15",
-    "mysql": "^2.18.1"
+    "fs": "0.0.1-security",
+    "mongoose": "^5.10.2",
+    "mysql": "^2.18.1",
+    "sqlite3": "^5.0.0"
   }
 }
