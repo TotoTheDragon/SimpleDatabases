@@ -32,7 +32,7 @@ export class TableEditor {
 
     edit(database: SQLWrapper): Promise<void> {
         return new Promise(async resolve => {
-            if (!(await database.getTables()).includes(this.table)) resolve();
+            if (!(await database.getTables()).includes(this.table)) return resolve();
 
             const columns = await database.getColumns(this.table)
 

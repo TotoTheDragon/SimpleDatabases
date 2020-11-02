@@ -72,7 +72,13 @@ export class MySQLDatabase extends SQLWrapper {
     getFirstResult(key: string, value: string, table: string): Promise<SerializedData> {
         return new Promise(resolve => {
             const query: Query = this.getConnection().query(`SELECT * FROM ${table} WHERE ${key} = '${value}'`);
-            query.on("result", row => resolve(new SerializedData(row)))
+            query.on("result", row => {
+                for (const k of Object.keys(row)) {
+                    if (row[k] !== undefined && row[k] !== null)
+                        row[k] = row[k].replace(new RegExp(`\n`, "g"), "\\n");
+                }
+                return resolve(new SerializedData(row));
+            })
             query.on("end", () => resolve(undefined));
         })
     }

@@ -1,23 +1,41 @@
-import { StorageHolder } from "./lib/StorageHolder";
+import { format } from "mysql";
 
-module.exports = {
-    StorageHolder: require("./lib/StorageHolder").StorageHolder,
-    SerializedData: require("./lib/SerializedData").SerializedData,
-    SerializedObject: require("./lib/SerializableObject").SerializedObject,
+/* 
+    Main directory    
+*/
 
-    Cacheable: require("./lib/util/Cacheable").Cacheable,
-    Saveable: require("./lib/util/Saveable").Saveable,
-    Loadable: require("./lib/util/Loadable").Loadable,
-    DataPair: require("./lib/util/DataPair").DataPair,
+export * from "./lib/StorageHolder";
+export * from "./lib/SerializedData";
+export * from "./lib/SerializableObject";
 
-    Storage: require("./lib/storage/Storage").Storage,
-    SqlStorage: require("./lib/storage/SqlStorage").SqlStorage,
+/*
+    Utils
+*/
 
-    TableEditor: require("./lib/sql/TableEditor").TableEditor,
-    TableCreator: require("./lib/sql/TableCreator").TableCreator,
-    SQLWrapper: require("./lib/sql/SQLWrapper").SQLWrapper,
-    MySQLDatabase: require("./lib/sql/types/MySQLDatabase").MySQLDatabase,
+export * from "./lib/util/Cacheable";
+export * from "./lib/util/Saveable";
+export * from "./lib/util/Loadable";
+export * from "./lib/util/DataPair";
 
-    DataBody: require("./lib/body/DataBody").DataBody,
-    SqlDataBody: require("./lib/body/SqlDataBody").SqlDataBody
-};
+/*
+    Storage objects
+*/
+
+export * from "./lib/storage/Storage";
+export * from "./lib/storage/SqlStorage";
+
+/*
+    SQL
+*/
+
+export * from "./lib/sql/SQLWrapper";
+export * from "./lib/sql/TableCreator";
+export * from "./lib/sql/TableEditor";
+export * from "./lib/sql/types/MySQLDatabase";
+
+/*
+    Bodies
+*/
+
+export * from "./lib/body/DataBody";
+export * from "./lib/body/SqlDataBody";

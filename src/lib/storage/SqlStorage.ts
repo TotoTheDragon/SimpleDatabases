@@ -32,11 +32,18 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
 
     cache = (primaryKey: any, callback?: (arg: T) => any): Promise<T> => new Promise(
         async resolve => {
-            const data: SerializedData = await this.database.getFirstResult(this.getDummy().getStructure()[0], primaryKey, this.getDummy().getTable());
-            if (data == undefined) resolve(undefined);
+            let data: SerializedData = await this.database.getFirstResult(this.getDummy().getStructure()[0], primaryKey, this.getDummy().getTable());
             const t: T = this.getDummy();
+            if (data !== undefined) {
+                t.deserialize(data);
+                this.onAdd(t);
+                return resolve(t);
+            }
+            let obj = {};
+            obj[this.getDummy().getStructure()[0]] = primaryKey;
+            data = new SerializedData(obj);
             t.deserialize(data);
-            this.onAdd(t);
+            this.add(t);
             resolve(t);
         });
 
@@ -116,8 +123,9 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
             const values = object.getStructure()
                 .slice(1)
                 .filter(col => data.applyAs(col) != undefined)
-                .map(col => `${col} = '${data.applyAs<string>(col)}'`)
+                .map(col => `\`${col}\` = '${data.applyAs<string>(col)}'`)
                 .join(",")
+                .replace(new RegExp(`"`, "g"), `\\"`)
                 .replace(new RegExp(`'null'`, "g"), "NULL");
 
             let sql = `UPDATE ${object.getTable()} SET ${values} WHERE ${object.getStructure()[0]} = '${primaryKey}'`;
@@ -132,7 +140,8 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
             let values = object.getStructure()
                 .map(col => data.applyAs<string>(col))
                 .join("','")
-                .replace(new RegExp(`"`, "g"), `\\"`);
+                .replace(new RegExp(`"`, "g"), `\\"`)
+                .replace(new RegExp(`'null'`, "g"), "NULL");
             let sql = `INSERT INTO ${object.getTable()} (${object.getStructure().join(",")}) VALUES('${values}')`;
             await this.database.execute(sql);
             resolve();
