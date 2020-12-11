@@ -4,6 +4,7 @@ import { SQLWrapper } from "../sql/SQLWrapper";
 import { TableCreator } from "../sql/TableCreator";
 import { TableEditor } from "../sql/TableEditor";
 import { StorageHolder } from "../StorageHolder";
+import { toArray } from "../StringUtil";
 import { Storage } from "./Storage";
 
 export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
@@ -25,25 +26,26 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
     remove = (object: T): Promise<void> => new Promise(
         async resolve => {
             this.onRemove(object);
-            await this.database.remove(object.getTable(), object.getKey(), object.getStructure());
+            await this.database.remove(object.getTable(), object.getKey(), object.getValues());
             resolve();
         });
 
 
-    cache = (primaryKey: any, callback?: (arg: T) => any): Promise<T> => new Promise(
+    cache = (key: string | string[], value: string | string[], callback?: (arg: T) => any): Promise<T> => new Promise(
         async resolve => {
-            let data: SerializedData = await this.database.getFirstResult(this.getDummy().getStructure()[0], primaryKey, this.getDummy().getTable());
             const t: T = this.getDummy();
+            let data: SerializedData = await this.database.getFirstResult(key, value, t.getTable());
             if (data !== undefined) {
                 t.deserialize(data);
                 this.onAdd(t);
                 return resolve(t);
             }
-            let obj = {};
-            obj[this.getDummy().getStructure()[0]] = primaryKey;
+            const values = toArray(value);
+            const obj = {};
+            toArray(key).forEach((k, i) => obj[k] = values[i]);
             data = new SerializedData(obj);
             t.deserialize(data);
-            this.add(t);
+            await this.add(t);
             resolve(t);
         });
 
@@ -66,10 +68,10 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
             const data: SerializedData = new SerializedData();
             object.serialize(data);
 
-            if (await this.database.isPrimaryKeyUsed(object.getTable(), object.getKey(), object.getStructure()))
-                await this.updateObject(object, object.getKey());
+            if (await this.database.isKeyUsed(object.getTable(), object.getKey(), object.getValues()))
+                await this.updateObject(object, object.getKey(), object.getValues());
             else
-                await this.insertObject(object, object.getKey());
+                await this.insertObject(object);
 
             if (callback) callback();
             resolve();
@@ -115,35 +117,38 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
         });
 
 
-    updateObject = (object: T, primaryKey: string): Promise<void> => new Promise(
+    updateObject = (object: T, key: string | string[], value: string | string[]): Promise<void> => new Promise(
         async resolve => {
+            const keys = toArray(key);
+            const values = toArray(value);
+
             const data: SerializedData = new SerializedData();
             object.serialize(data);
 
-            const values = object.getStructure()
-                .slice(1)
-                .filter(col => data.applyAs(col) != undefined)
-                .map(col => `\`${col}\` = '${data.applyAs<string>(col)}'`)
-                .join(",")
-                .replace(new RegExp(`"`, "g"), `\\"`)
-                .replace(new RegExp(`'null'`, "g"), "NULL");
+            const columns = object.getStructure()
+                .filter(col => !keys.includes(col))
+                .filter(col => data.applyAs(col) !== undefined);
 
-            let sql = `UPDATE ${object.getTable()} SET ${values} WHERE ${object.getStructure()[0]} = '${primaryKey}'`;
-            await this.database.execute(sql);
+            const unknownValues = columns.map(col => `\`${col}\` = ?`).join(",");
+
+            const knownValues: string[] = columns.map(col => data.applyAs<string>(col));
+
+            const argumentList = keys.map((k, i) => `${k} = '${values[i]}'`).join(" AND ");
+
+            let sql = `UPDATE ${object.getTable()} SET ${unknownValues} WHERE ${argumentList}`;
+            await this.database.execute(sql, knownValues);
             resolve();
         });
 
-    insertObject = (object: T, primaryKey: string): Promise<void> => new Promise(
+    insertObject = (object: T): Promise<void> => new Promise(
         async resolve => {
             const data: SerializedData = new SerializedData();
             object.serialize(data);
-            let values = object.getStructure()
-                .map(col => data.applyAs<string>(col))
-                .join("','")
-                .replace(new RegExp(`"`, "g"), `\\"`)
-                .replace(new RegExp(`'null'`, "g"), "NULL");
-            let sql = `INSERT INTO ${object.getTable()} (${object.getStructure().join(",")}) VALUES('${values}')`;
-            await this.database.execute(sql);
+            const values: string[] = object.getStructure()
+                .map(col => data.applyAs<string>(col));
+
+            let sql = `INSERT INTO ${object.getTable()} (${object.getStructure().join(",")}) VALUES(${"?,".repeat(values.length).slice(0, -1)})`;
+            await this.database.execute(sql, values);
             resolve();
         });
 
@@ -157,6 +162,11 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
             object.getStructure()
                 .filter(s => !columns.includes(s))
                 .forEach(s => editor.addColumn(s, "TEXT"));
+
+            columns
+                .filter(s => !object.getStructure().includes(s))
+                .forEach(s => editor.dropColumn(s));
+
             await editor.edit(database);
             resolve();
         });
@@ -176,7 +186,7 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
             resolve();
         });
 
-
+    abstract getByKey(key: string | string[], value: string | string[]): T;
     abstract getDummy(): T;
     abstract onAdd(object: T): void;
     abstract onRemove(object: T): void;

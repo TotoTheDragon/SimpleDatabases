@@ -18,4 +18,8 @@ export class SerializedData {
         this.json[field] = object;
     }
 
+    has(field?: string): boolean {
+        return this.applyAs(field) !== undefined && this.applyAs(field) !== null;
+    }
+
 }

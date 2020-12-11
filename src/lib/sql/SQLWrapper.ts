@@ -8,13 +8,13 @@ export abstract class SQLWrapper {
         return new TableCreator(this);
     }
 
-    abstract execute(sql: string): Promise<void>;
+    abstract execute(sql: string, values?: string[]): Promise<void>;
 
-    abstract isPrimaryKeyUsed(table: string, key: string, structure: string[]): Promise<Boolean>;
+    abstract isKeyUsed(table: string, key: string | string[], value: string | string[]): Promise<Boolean>;
 
-    abstract getFirstResult(key: string, value: string, table: string): Promise<SerializedData>;
+    abstract getFirstResult(key: string | string[], value: string | string[], table: string): Promise<SerializedData>;
 
-    abstract getAllResults(key: string, value: string, table: string): Promise<SerializedData[]>;
+    abstract getAllResults(key: string | string[], value: string | string[], table: string): Promise<SerializedData[]>;
 
     abstract getAllValuesOf(table: string, structure: string[]): Promise<SerializedData[]>;
 
@@ -22,5 +22,5 @@ export abstract class SQLWrapper {
 
     abstract getTables(): Promise<string[]>;
 
-    abstract remove(table: string, key: string, structure: string[]): Promise<void>;
+    abstract remove(table: string, key: string | string[], value: string | string[]): Promise<void>;
 }

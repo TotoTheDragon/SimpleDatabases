@@ -27,14 +27,23 @@ export abstract class Storage<T extends DataBody> implements Cacheable, Loadable
         });
     }
 
+    getOrCreate = (key: string | string[], value: string | string[]): Promise<T> => new Promise(
+        async resolve => {
+            const get = this.getByKey(key, value);
+            if (get !== undefined) return resolve(get);
+            else return resolve(await this.cache(key, value));
+        }
+    )
 
-    abstract cache(primaryKey: any, callback?: (arg: T) => any): Promise<T>;
-    abstract cacheAll(key: string, value: any, callback?: (arg: any) => any): Promise<T[]>;
+
+    abstract cache(key: string | string[], value: string | string[], callback?: (arg: T) => any): Promise<T>;
+    abstract cacheAll(key: string | string[], value: string | string[], callback?: (arg: any) => any): Promise<T[]>;
     abstract saveObject(object: T, callback?: () => void, prepare?: boolean): Promise<void>;
 
     abstract save(callback?: () => any): Promise<void>;
     abstract load(callback?: () => any): Promise<void>;
 
+    abstract getByKey(key: string | string[], value: string | string[]): T;
     abstract getDummy(): T;
     abstract onAdd(object: T): void;
     abstract onRemove(object: T): void;
