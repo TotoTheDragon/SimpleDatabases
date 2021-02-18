@@ -1,30 +1,30 @@
-import { Connection, ConnectionConfig, createConnection, Query } from "mysql";
+import { Connection, ConnectionConfig, createConnection, createPool, Pool, PoolConfig, Query } from "mysql";
 import { SerializedData } from "../../SerializedData";
 import { toArray } from "../../StringUtil";
 import { SQLWrapper } from "../SQLWrapper";
 export class MySQLDatabase extends SQLWrapper {
 
-    connection: Connection;
+    pool: Pool;
 
-    constructor(private config: ConnectionConfig) {
+    constructor(private config: PoolConfig) {
         super();
     }
 
-    provideConnection = () => createConnection(this.config);
+    providePool = () => createPool(this.config);
 
-    getConnection(): Connection {
-        if (!this.connection) {
+    getConnection(): Pool {
+        if (!this.pool) {
             try {
-                this.connection = this.provideConnection();
+                this.pool = this.providePool();
             } catch (err) { }
         }
-        return this.connection;
+        return this.pool;
     }
 
     getColumns(table: string): Promise<string[]> {
         const columns = [];
         return new Promise(resolve => {
-            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.columns WHERE table_name='${table}' AND table_schema='${this.getConnection().config.database}'`);
+            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.columns WHERE table_name='${table}' AND table_schema='${this.config.database}'`);
             query.on("result", row => columns.push(row.COLUMN_NAME));
             query.on("end", () => resolve(columns));
         })
@@ -42,7 +42,7 @@ export class MySQLDatabase extends SQLWrapper {
     getTables(): Promise<string[]> {
         const tables = [];
         return new Promise(resolve => {
-            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.tables WHERE table_schema='${this.getConnection().config.database}'`);
+            const query: Query = this.getConnection().query(`SELECT * FROM information_schema.tables WHERE table_schema='${this.config.database}'`);
             query.on("result", row => tables.push(row.TABLE_NAME));
             query.on("end", () => resolve(tables));
         });

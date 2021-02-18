@@ -31,7 +31,7 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
         });
 
 
-    cache = (key: string | string[], value: string | string[], callback?: (arg: T) => any): Promise<T> => new Promise(
+    cache = (key: string | string[], value: string | string[], createIfNotExists: boolean = true, callback?: (arg: T) => any): Promise<T> => new Promise(
         async resolve => {
             const t: T = this.getDummy();
             let data: SerializedData = await this.database.getFirstResult(key, value, t.getTable());
@@ -40,6 +40,7 @@ export abstract class SqlStorage<T extends SqlDataBody> extends Storage<T> {
                 this.onAdd(t);
                 return resolve(t);
             }
+            if (!createIfNotExists) return resolve(undefined);
             const values = toArray(value);
             const obj = {};
             toArray(key).forEach((k, i) => obj[k] = values[i]);

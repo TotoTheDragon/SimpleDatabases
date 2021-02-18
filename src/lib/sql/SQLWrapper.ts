@@ -8,7 +8,7 @@ export abstract class SQLWrapper {
         return new TableCreator(this);
     }
 
-    abstract execute(sql: string, values?: string[]): Promise<void>;
+    abstract execute(sql: string, values?: any[]): Promise<any>;
 
     abstract isKeyUsed(table: string, key: string | string[], value: string | string[]): Promise<Boolean>;
 

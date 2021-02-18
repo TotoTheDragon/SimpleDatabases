@@ -35,8 +35,7 @@ export abstract class Storage<T extends DataBody> implements Cacheable, Loadable
         }
     )
 
-
-    abstract cache(key: string | string[], value: string | string[], callback?: (arg: T) => any): Promise<T>;
+    abstract cache(key: string | string[], value: string | string[], createIfNotExists?: boolean, callback?: (arg: T) => any): Promise<T>;
     abstract cacheAll(key: string | string[], value: string | string[], callback?: (arg: any) => any): Promise<T[]>;
     abstract saveObject(object: T, callback?: () => void, prepare?: boolean): Promise<void>;
 
