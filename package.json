@@ -1,9 +1,9 @@
 {
   "name": "simpledatabases",
-  "version": "1.1.1",
+  "version": "1.1.5",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "prepare": "npm version patch && shx rm -rf lib/ && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,16 +16,14 @@
     "url": "git+https://github.com/totothedragon/simpledatabases.git"
   },
   "dependencies": {
-    "@types/mysql": "^2.15.15",
     "fs": "0.0.1-security",
-    "mongoose": "^5.10.2",
-    "mysql": "^2.18.1",
-    "sqlite3": "^5.0.0"
+    "mysql": "^2.18.1"
   },
   "files": [
-    "src/"
+    "lib/"
   ],
   "devDependencies": {
+    "@types/mysql": "^2.15.15",
     "shx": "^0.3.3"
   }
 }
