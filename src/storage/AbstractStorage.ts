@@ -22,7 +22,6 @@ export abstract class AbstractStorage<T extends AbstractBody> implements Cacheab
 
     remove(object: T): Promise<void> {
         return new Promise(async resolve => {
-            await this.onRemove(object);
             await object.remove();
             resolve();
         })

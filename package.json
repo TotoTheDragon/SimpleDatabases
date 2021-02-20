@@ -17,12 +17,14 @@
   },
   "dependencies": {
     "fs": "0.0.1-security",
+    "mongodb": "^3.6.4",
     "mysql": "^2.18.1"
   },
   "files": [
     "lib/"
   ],
   "devDependencies": {
+    "@types/mongodb": "^3.6.8",
     "@types/mysql": "^2.15.15",
     "shx": "^0.3.3"
   }
