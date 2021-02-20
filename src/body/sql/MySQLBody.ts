@@ -1,4 +1,5 @@
 import { AbstractDatabase } from "../../databases/AbstractDatabase";
+import { MySQLDatabase } from "../../databases/sql/MySQLDatabase";
 import { SerializedData } from "../../objects/SerializedData";
 import { AbstractStorage } from "../../storage/AbstractStorage";
 import { ColumnType } from "../../util/Constants";
@@ -6,11 +7,11 @@ import { AbstractBody } from "../AbstractBody";
 
 export abstract class MySQLBody extends AbstractBody {
 
-    database: AbstractDatabase;
+    database: MySQLDatabase;
 
     cache: SerializedData;
 
-    constructor(storage: AbstractStorage<MySQLBody>, database: AbstractDatabase) {
+    constructor(storage: AbstractStorage<MySQLBody>, database: MySQLDatabase) {
         super(storage);
         this.database = database;
     }
