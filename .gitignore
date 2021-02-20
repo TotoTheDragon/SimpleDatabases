@@ -2,3 +2,5 @@ dist/
 *.code-workspace
 node_modules/
 old_src/
+test.ts
+lib/
