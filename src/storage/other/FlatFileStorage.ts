@@ -30,7 +30,12 @@ export abstract class FlatFileStorage<T extends FlatFileBody> extends AbstractSt
         return this.cache(identifiers, true);
     }
 
+    abstract getFromCached(identifiers: object): T;
+
     async cache(identifiers: object, createIfNotExists?: boolean): Promise<T> {
+        const cached = this.getFromCached(identifiers);
+        if (cached) return cached;
+
         const obj: T = this.getDummy();
         Object.keys(identifiers).forEach(i => obj[i] = identifiers[i]);
 

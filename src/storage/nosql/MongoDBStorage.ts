@@ -30,7 +30,12 @@ export abstract class MongoDBStorage<T extends MongoDBBody> extends AbstractStor
         return this.cache(identifiers, true);
     }
 
+    abstract getFromCached(identifiers: object): T;
+
     async cache(identifiers: object, createIfNotExists?: boolean): Promise<T> {
+        const cached = this.getFromCached(identifiers);
+        if (cached) return cached;
+
         const obj: T = this.getDummy();
         Object.keys(identifiers).forEach(i => obj[i] = identifiers[i]);
 
