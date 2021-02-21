@@ -1,3 +1,5 @@
+import { readdir, stat } from "fs/promises";
+import { join } from "path";
 import { ColumnType } from "./Constants";
 
 export class SDUtil {
@@ -67,4 +69,25 @@ export class SDUtil {
 
         return type;
     }
+
+    static getExecutionPath(): string {
+        return process.argv[1].split("\\").slice(0, -1).join("\\");
+    }
+
+    static async findFiles(dir: string, recursive: boolean = false): Promise<string[]> {
+        try {
+            if (recursive) return (await SDUtil.findFilesRecursive(dir)).map(f => f.substr(join(dir).length))
+            return await (readdir(dir));
+        } catch (err) {
+            return [];
+        }
+    }
+
+    static async findFilesRecursive(dir: string, allFiles: string[] = []): Promise<string[]> {
+        const files = (await readdir(dir)).map(f => join(dir, f))
+        allFiles.push(...files)
+        await Promise.all(files.map(async f => (await stat(f)).isDirectory() && SDUtil.findFilesRecursive(f, allFiles)));
+        return allFiles;
+    }
+
 }
