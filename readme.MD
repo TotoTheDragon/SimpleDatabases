@@ -5,13 +5,15 @@ We manage everything with tables and adding/updating/removing data for you.
 ## How to use
 To get started with SimpleDatabases you need to create a StorageHolder, which will keep track of all your storages.
 A storage is a collection of all of your objects of ONE specific type.
-Then to store the data in the database you will need to create a database object. The currently implemented one is MySQLDatabase.
+Then to store the data in the database you will need to create a database object. The currently implemented ones are MySQLDatabase, MongoDBDatabase and FlatFileDatabase.
 ```typescript
 const holder: StorageHolder = new StorageHolder();
-const database: MySQLDatabase = new MySQLDatabase({database: "simpledb", user: "simpledb", password: "simpledb"});
+const mysqldatabase: MySQLDatabase = new MySQLDatabase({database: "simpledb", user: "simpledb", password: "simpledb"});
+const mongo: MongoDBDatabase = new MongoDBDatabase("simpledb", "mongodb://localhost:27017/", { auth: { user: "simpledb", password: "simpledb" } });
+const flatfile: FlatFileDatabase = new FlatFileDatabase();
 ```
 
-At this point you need to create an object you want to store. This must extend an AbstractBody. The currently implemented one is MySQLBody.
+At this point you need to create an object you want to store. This must extend an AbstractBody. The currently implemented ones are MySQLBody, MongoDBBody and FlatFileBody.
 ```typescript
 
 class ExampleObject extends MySQLBody {
@@ -51,7 +53,7 @@ class ExampleObject extends MySQLBody {
 }
 ```
 
-Now we need a holder which will hold our ExampleObject's. This needs to extend AbstractStorage. The currently implemented one is MySQLStorage. This is mainly used to implement your own way of caching data (if you want to cache data, otherwise just have empty functions.)
+Now we need a holder which will hold our ExampleObject's. This needs to extend AbstractStorage. The currently implemented ones are MySQLStorage, MongoDBStorage and FlatFileStorage. This is mainly used to implement your own way of caching data (if you want to cache data, otherwise just have empty functions.)
 ```typescript
 class DataHolder extends MySQLStorage<DataObject> {
 
