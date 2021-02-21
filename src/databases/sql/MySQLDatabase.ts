@@ -31,7 +31,6 @@ export class MySQLDatabase extends AbstractDatabase {
         return new Promise((resolve, reject) => {
             let results = [];
             const query = this.pool.query({ sql: sql, values: values });
-            console.log(format(query.sql, values))
             query.on("result", row => results.push(row));
             query.on("end", () => resolve(results));
             query.on("error", (err) => reject(format(query.sql, values) + "\n\n" + err));
