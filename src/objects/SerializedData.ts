@@ -32,11 +32,11 @@ export class SerializedData {
         if (typeof type === "string") {
             if (type === "string") return this.json[key]?.toString() ?? this.json[key];
             if (type === "number") return parseInt(this.json[key]);
-            if (type === "json") return this.json[key];
+            if (type === "json") return SDUtil.safeJSONParse(this.json[key]);
         } else {
             try {
                 const val = new type();
-                val.deserialize(SerializedData.fromJSON(this.json[key]));
+                val.deserialize(SerializedData.fromJSON(SDUtil.safeJSONParse(this.json[key])));
                 return val;
             } catch {
                 return undefined

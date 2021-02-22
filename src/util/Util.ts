@@ -6,8 +6,7 @@ export class SDUtil {
 
     static safeJSONParse(input: string) {
         try {
-            return JSON.parse(JSON.stringify(input));
-            typeof Number
+            return JSON.parse(input);
         } catch (err) {
             return undefined;
         }
