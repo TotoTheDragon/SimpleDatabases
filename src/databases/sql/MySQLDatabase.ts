@@ -53,12 +53,12 @@ export class MySQLDatabase extends AbstractDatabase {
         const serialized = new SerializedData(obj);
         const changed: string[] = obj.cache ? obj.getFields().filter(f => obj.cache.get(f, "json") != serialized.get(f, "json")) : obj.getFields();
         if (changed.length <= 0) return;
-        return this.query(`UPDATE \`${obj.getCollection()}\` SET ${changed.map(f => "`" + f + "`=?").join(", ")} WHERE ${identifiers.map(i => `${i}=?`).join(" AND")};`, [...changed.map(f => serialized.get(f, "json")), ...values]);
+        return this.query(`UPDATE \`${obj.getCollection()}\` SET ${changed.map(f => "`" + f + "`=?").join(", ")} WHERE ${identifiers.map(i => `${i}=?`).join(" AND")};`, [...changed.map(f => JSON.stringify(serialized.get(f, "json"))), ...values]);
     }
 
     insertObject(obj: MySQLBody): Promise<void> {
         const data = new SerializedData(obj);
-        return this.query(`INSERT INTO \`${obj.getCollection()}\` (${obj.getFields().map(f => "`" + f + "`").join(", ")}) VALUES (${obj.getFields().map(() => "?").join(", ")})`, obj.getFields().map(f => data.get(f, "json")));
+        return this.query(`INSERT INTO \`${obj.getCollection()}\` (${obj.getFields().map(f => "`" + f + "`").join(", ")}) VALUES (${obj.getFields().map(() => "?").join(", ")})`, obj.getFields().map(f => JSON.stringify(data.get(f, "json"))));
     }
 
     async selectObject(table: string, identifiers: string | string[], values: string | string[]): Promise<SerializedData> {

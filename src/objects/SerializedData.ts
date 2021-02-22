@@ -26,12 +26,22 @@ export class SerializedData {
         return this.get(key, type);
     }
 
-    get(key: string, type: string = "string"): any {
+    get(key: string, type: string | any = "string"): any {
         if (this.json[key] === undefined) return undefined;
 
-        if (type === "string") return this.json[key]?.toString() ?? this.json[key];
-        if (type === "number") return parseInt(this.json[key]);
-        if (type === "json") return SDUtil.safeJSONParse(this.json[key]);
+        if (typeof type === "string") {
+            if (type === "string") return this.json[key]?.toString() ?? this.json[key];
+            if (type === "number") return parseInt(this.json[key]);
+            if (type === "json") return this.json[key];
+        } else {
+            try {
+                const val = new type();
+                val.deserialize(SerializedData.fromJSON(this.json[key]));
+                return val;
+            } catch {
+                return undefined
+            }
+        }
         return this.json[key];
     }
 
